@@ -35,7 +35,8 @@
       {
         "provider": "github",
         "owner": "angelcorex",
-        "repo": "prostodesktop"
+        "repo": "prostodesktop",
+        "releaseType": "release"
       }
     ],
     "files": [

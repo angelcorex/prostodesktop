@@ -1,1 +1,1 @@
-﻿# Prosto Desktop - native desktop client for Prosto.
+# Prosto Desktop — native desktop client for Prosto.

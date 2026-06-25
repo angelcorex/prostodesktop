@@ -15,6 +15,15 @@ let mainWindow = null;
 // update restart). Otherwise closing the window just hides it to the tray.
 let isQuitting = false;
 
+// Some machines (older/integrated GPUs or broken graphics drivers) render the
+// window as a black screen when hardware acceleration is on — a well-known
+// Electron issue. Disable it for maximum compatibility; the heavy rendering is
+// the remote web app anyway. Power users can force the GPU back on by setting
+// PROSTO_ENABLE_GPU=1.
+if (!process.env.PROSTO_ENABLE_GPU) {
+  app.disableHardwareAcceleration();
+}
+
 // Minimal offline/connecting screen shown if the remote app can't be reached
 // on first load. It auto-retries; this just avoids a blank/invisible window.
 const OFFLINE_HTML = `<!doctype html><html><head><meta charset="utf-8"><style>
@@ -148,6 +157,14 @@ function createWindow() {
         if (!mainWindow.isDestroyed()) mainWindow.loadURL(config.appUrl);
       }, 2500);
     }
+  });
+
+  // If the renderer crashes (GPU/out-of-memory), reload instead of leaving a
+  // black window. Avoids a dead blank screen on flaky machines.
+  mainWindow.webContents.on('render-process-gone', (_e, details) => {
+    if (details.reason === 'clean-exit' || mainWindow.isDestroyed()) return;
+    showWindow();
+    mainWindow.loadURL(config.appUrl);
   });
 
   mainWindow.loadURL(config.appUrl);
